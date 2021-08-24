@@ -1,5 +1,6 @@
 import json
 import ROOT
+from ROOT import TBits, TObjString
 import numpy as np
 import sys
 
@@ -11,9 +12,9 @@ MAX_PARTICLES = 100
 fo = ROOT.TFile(output_filename, 'RECREATE')
 tree = ROOT.TTree('gRooTracker', 'gRooTracker')
 EvtNum = np.empty((1,), dtype='i4')
-EvtFlags = np.empty((1,), dtype=ROOT.TBits)
-EvtCode = np.empty((1,), dtype=ROOT.TObjString)
-EvtVtx = np.empty((1, 4), dtype='f8')
+EvtFlags = TBits(0)
+EvtCode = TObjString('')
+EvtVtx = np.empty((4,), dtype='f8')
 EvtXSec = np.empty((1,), dtype='f8')
 EvtDXSec = np.empty((1,), dtype='f8')
 EvtWght = np.empty((1,), dtype='f8')
@@ -36,8 +37,8 @@ NuParentProX4 = np.empty((4,), dtype='f8')
 NuParentProP4 = np.empty((4,), dtype='f8')
 NuParentProNVtx = np.empty((1,), dtype='i4')
 tree.Branch("EvtNum", EvtNum, "EvtNum/I")
-tree.Branch("EvtFlags", "TBits", EvtFlags, 32000, 1)
-tree.Branch("EvtCode", "TObjString", EvtCode, 32000, 1)
+tree.Branch("EvtFlags", EvtFlags)
+tree.Branch("EvtCode", EvtCode)
 tree.Branch("EvtVtx", EvtVtx, "EvtVtx[4]/D")
 tree.Branch("EvtXSec", EvtXSec, "EvtXsec/D")
 tree.Branch("EvtDXSec", EvtDXSec, "EvtDXsec/D")
@@ -62,35 +63,40 @@ tree.Branch("NuParentProX4", NuParentProX4, "NuParentProX4[4]/D")
 tree.Branch("NuParentProNVtx", NuParentProNVtx, "NuParentProNVtx/I")
 
 for filename in input_files:
+    print(f'{filename} |', end='\r')
     with open(filename, 'r') as fi:
         data = json.load(fi)
 
-    for ev in data:
-        EvtNum = data['EvtNum']
-        EvtFlags = data['EvtFlags']
-        EvtCode = data['EvtCode']
-        EvtVtx = data['EvtVtx']
-        EvtXSec = data['EvtXSec']
-        EvtDXSec = data['EvtDXSec']
-        EvtWght = data['EvtWght']
-        EvtProb = data['EvtProb']
-        StdHepN = data['StdHepN']
-        StdHepPdg[:StdHepN] = data['StdHepPdg']
-        StdHepStatus[:StdHepN] = data['StdHepStatus']
-        StdHepP4[:StdHepN] = data['StdHepP4']
-        StdHepX4[:StdHepN] = data['StdHepX4']
-        StdHepPolz[:StdHepN] = data['StdHepPolz']
-        StdHepFd[:StdHepN] = data['StdHepFd']
-        StdHepLd[:StdHepN] = data['StdHepLd']
-        StdHepFm[:StdHepN] = data['StdHepFm']
-        StdHepLm[:StdHepN] = data['StdHepLm']
-        NuParentPdg = data['NuParentPdg']
-        NuParentDecMode = data['NuParentDecMode']
-        NuParentDecP4 = data['NuParentDecP4']
-        NuParentDecX4 = data['NuParentDecX4']
-        NuParentProX4 = data['NuParentProX4']
-        NuParentProP4 = data['NuParentPro4P']
-        NuParentProNVtx = data['NuParentNVtx']
+    n_ev = len(data)
+    for i, ev in enumerate(data):
+        print(f'{filename} | {int(i/n_ev * 100)}%', end='\r')
+
+        EvtNum[:] = ev['EvtNum']
+        # EvtFlags[:] = ev['EvtFlags'] # NOT USED
+        # EvtCode[:] = ev['EvtCode'] # NOT USED
+        EvtVtx[:] = ev['EvtVtx']
+        EvtXSec[:] = ev['EvtXSec']
+        EvtDXSec[:] = ev['EvtDXSec']
+        EvtWght[:] = ev['EvtWght']
+        EvtProb[:] = ev['EvtProb']
+        StdHepN[:] = ev['StdHepN']
+        n = int(StdHepN)
+        StdHepPdg[:n] = ev['StdHepPdg']
+        StdHepStatus[:n] = ev['StdHepStatus']
+        StdHepP4[:n] = ev['StdHepP4']
+        StdHepX4[:n] = ev['StdHepX4']
+        StdHepPolz[:n] = ev['StdHepPolz']
+        StdHepFd[:n] = ev['StdHepFd']
+        StdHepLd[:n] = ev['StdHepLd']
+        StdHepFm[:n] = ev['StdHepFm']
+        StdHepLm[:n] = ev['StdHepLm']
+        NuParentPdg[:] = ev['NuParentPdg']
+        NuParentDecMode[:] = ev['NuParentDecMode']
+        NuParentDecP4[:] = ev['NuParentDecP4']
+        NuParentDecX4[:] = ev['NuParentDecX4']
+        NuParentProX4[:] = ev['NuParentProX4']
+        NuParentProP4[:] = ev['NuParentProP4']
+        NuParentProNVtx[:] = ev['NuParentProNVtx']
 
         tree.Fill()
 
