@@ -1,3 +1,51 @@
+'''
+Convert a JSON-formatted event file(s) into a single RooTracker-formatted ROOT file.
+
+Requirements:
+
+ - root
+ - numpy
+
+Usage::
+
+    python json2rootracker.py <input json filename(s)> ... <output RooTracker root filename>
+
+JSON structure::
+
+    [
+        {
+            "EvtNum": <int>,
+            "EvtFlags": <not implemented>,
+            "EvtCode": <not implemented>,
+            "EvtVtx": [<x>, <y>, <z>, <t>],
+            "EvtXSec": <float>,
+            "EvtDXSec": <float>,
+            "EvtWght": <float>,
+            "EvtProb": <float>,
+            "StdHepN": <int>,
+            "StdHepPdg": [<int>, ...<"StdHepN" entries>],
+            "StdHepStatus": [<int>, ...<"StdHepN" entries>],
+            "StdHepP4": [[<px>, <py>, <pz>, <E>], ...<"StdHepN" entries>],
+            "StdHepX4": [[<x>, <y>, <z>, <t>], ...<"StdHepN" entries>],
+            "StdHepPolz": [[<dx>, <dy>, <dz>], ...<"StdHepN" entries>],
+            "StdHepFd": [<int>, ...<"StdHepN" entries>],
+            "StdHepLd": [<int>, ...<"StdHepN" entries>],
+            "StdHepFm": [<int>, ...<"StdHepN" entries>],
+            "StdHepLm": [<int>, ...<"StdHepN" entries>],
+            "NuParentPdg": <int>,
+            "NuParentDecMode": <int>,
+            "NuParentDecP4": [<px>, <py>, <pz>, <E>],
+            "NuParentDecX4": [<x>, <y>, <z>, <t>],
+            "NuParentProX4": [<x>, <y>, <z>, <t>],
+            "NuParentProP4": [<px>, <py>, <pz>, <E>],
+            "NuParentProNVtx": <int>
+        },
+        ...<1 entry per event>
+    ]
+
+
+'''
+
 import json
 import ROOT
 from ROOT import TBits, TObjString
